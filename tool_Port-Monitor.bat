@@ -1,5 +1,5 @@
 @echo off &setlocal EnableDelayedExpansion
-call :setESC
+call :setESC &call :port_list
 goto init
 
 :main
@@ -17,8 +17,7 @@ goto main
 set cmd_all=img pid all wg
 if %enter:~0,1%==/ (
 for %%a in (%cmd_all%) do if !enter:~1!==%%a goto %enter%
-goto /help
-)
+goto /help)
 goto check
 
 REM Commands
@@ -38,7 +37,7 @@ goto all
 goto watchdog
 
 :check
-if not %enter%==0 (
+if not %enter%==nul (
 if %mode%==img (
 for /f "tokens=2" %%a in ('tasklist /fi "imagename eq %enter%" ^| findstr /b /i %enter%') do set pid=%%a &goto start
 for /f "tokens=2" %%a in ('tasklist /fi "imagename eq %enter%.exe" ^| findstr /b /i %enter%.exe') do set pid=%%a &goto start
@@ -67,32 +66,35 @@ for /f "tokens=*" %%a in ('netstat -ano ^| findstr /e %pid%') do (
 for /f "tokens=5" %%b in ("%%a") do if %%b==%pid% set/a count+=1 &set output[!count!]=%%a)
 
 if !count!==0 (echo. &echo ^(Empty^)) else (
-for /l %%0 in (1, 1, !count!) do (for /f "tokens=1-5" %%a in ("!output[%%0]!") do (for /f "delims=:" %%l in ("%%b") do (
+for /l %%0 in (1, 1, !count!) do for /f "tokens=1-5" %%a in ("!output[%%0]!") do (
 for /f "delims=:" %%k in ("%%c") do if %%d==LISTENING ^
 if not %%k==127.0.0.1 if not %%k==0.0.0.0 if not %%c==[::]:0 (
 if not %list_w%==%pid% set killstr=!output[%%0]! &goto kill)
+
+if %detail%==1 (set "bool="
+for /f "tokens=2,4 delims=:" %%p in ("%%b:%%c") do for /l %%1 in (0, 1, %port_cnt%) do (
+if %%p==!port_list[%%1][0]! (set "bool=1") else (if %%q==!port_list[%%1][0]! set "bool=1")
+if defined bool set "var1=%%0" &set "var2=%%1" & ^
+set "varp=!port_list[%%1][0]!" &set "port_info=!port_list[%%1][1]!" & call :port_replace)
+set "output[%%0]=!output[%%0]:127.0.0.1=localhost!")
+
+for /f "delims=:" %%l in ("%%b") do (
 if %%l==127.0.0.1 (set /a total[1][0]+=1) else (set /a total[2][0]+=1)
 if not %%d==ESTABLISHED (set /a sortc[0]+=1 &set sort[0][!sortc[0]!]=!output[%%0]!) else (set /a est[0][0]+=1)
 if %%d==ESTABLISHED if %%l==127.0.0.1 (set /a sortc[1]+=1 &set sort[1][!sortc[1]!]=!output[%%0]!
-) else if not %%l==nul set /a sortc[2]+=1 &set sort[2][!sortc[2]!]=!output[%%0]!)))
-for /l %%0 in (1, 1, !count!) do set output[!count!]=nul
+) else if not %%l==nul set /a sortc[2]+=1 &set sort[2][!sortc[2]!]=!output[%%0]!))
+for /l %%0 in (1, 1, !count!) do set "output[!count!]="
+
 if %coolshit%==1 (
 for /l %%0 in (0, 1, !slen!) do (if not !sortc[%%0]!==0 echo.
 for /l %%1 in (1, 1, !sortc[%%0]!) do (
-if %%0==0 echo   %ESC%[103;30m!sort[%%0][%%1]:127.0.0.1=localhost!%ESC%[0m
-if %%0==1 echo   %ESC%[47;30m!sort[%%0][%%1]:127.0.0.1=localhost!%ESC%[0m
-if %%0==2 echo   %ESC%[44;1m!sort[%%0][%%1]:127.0.0.1=localhost!%ESC%[0m))
-) else if %detail%==0 (
+if %%0==0 echo   %ESC%[103;30m!sort[%%0][%%1]!%ESC%[0m
+if %%0==1 echo   %ESC%[47;30m!sort[%%0][%%1]!%ESC%[0m
+if %%0==2 echo   %ESC%[44;1m!sort[%%0][%%1]!%ESC%[0m))
+) else (
 for /l %%0 in (0, 1, !slen!) do (if not !sortc[%%0]!==0 (echo. &if %%0==1 (echo ESTABLISHED: &echo.
 ) else if %%0==2 if !sortc[1]!==0 echo ESTABLISHED: &echo.) &for /l %%1 in (1, 1, !sortc[%%0]!) do echo   !sort[%%0][%%1]!)
-) else if %detail%==1 (
-for /l %%0 in (0, 1, !slen!) do (if not !sortc[%%0]!==0 (echo. &if %%0==1 (echo ESTABLISHED: &echo.
-) else if %%0==2 if !sortc[1]!==0 echo ESTABLISHED: &echo.) &for /l %%1 in (1, 1, !sortc[%%0]!) do (
-set temp=!sort[%%0][%%1]! &set temp=!temp:127.0.0.1=[localhost]! &set temp=!temp::443=:https!
-
-for /f "tokens=5" %%a in ("!sort[%%0][%%1]!") do (
-for /f "tokens=1" %%b in ('tasklist /fi "pid eq %%a" ^| findstr %%a') do (set temp=!temp:%%a=%%b!))
-echo   !temp!))))
+))
 
 set /a total[0][0]=!count! &for /l %%0 in (1, 1, !slen!) do set est[%%0][0]=!sortc[%%0]!
 if %bln%==1 (for /l %%a in (0, 1, 2) do (set /a est[%%a][2]=est[%%a][0] &set /a total[%%a][2]=total[%%a][0]) &set bln=0)
@@ -109,7 +111,6 @@ set /a data_len=2
 set data[1]=ESTABLISHED !est[0][0]! %est[1][0]%_^(%est[1][1]%^|%est[1][2]%^) %est[2][0]%_^(%est[2][1]%^|%est[2][2]%^)
 set data[2]=Total %total[0][0]% %total[1][0]%_^(%total[1][1]%^|%total[1][2]%^) %total[2][0]%_^(%total[2][1]%^|%total[2][2]%^)
 
-REM ==========Table==========
 for /l %%0 in (1, 1, !interval!) do set interval_= !interval_!
 for %%a in (!title!) do set title_print=!title_print!%%a!interval_!
 set "interval_="
@@ -151,10 +152,14 @@ echo. &echo   !title_print! &echo.
 for /l %%0 in (1, 1, %data_len%) do echo   !table[%%0]:_= ! &set table[%%0]=)
 set "title_print="
 
-title=Port Monitor - %imgname%^(%pid%^) Total:%total[0][0]% ^[Est:%est[0][0]% ^(LH:%est[1][0]% FH:%est[2][0]%^)^]
+title=Port Monitor - %imgname%(%pid%) Total:%total[0][0]% [Est:%est[0][0]% (LH:%est[1][0]% FH:%est[2][0]%)]
 timeout /T 3
 tasklist /fi "pid eq %pid%" | findstr "%pid%" 2>&1>nul || goto died
 goto loop
+
+:port_replace
+set "output[%var1%]=!output[%var1%]::%varp%=:%port_info%!"
+exit /b
 
 :alive
 tasklist /fi "pid eq %pid%" | findstr "%pid%" 2>&1>nul || goto died
@@ -292,12 +297,11 @@ goto wg_loop
 
 :init
 title=Port Monitor &color 0e &chcp 1252 >nul
-set enter=nul &set pid=0 &set imgname=0 &set mode=img &set detail=0
+set enter=nul &set pid=0 &set imgname=0 &set mode=img
 set /a total[3][3] &set /a est[3][3] &set /a listen[3][3]
 set /a estc[3][3]
-set bln=1
-set list_w=nul &set list_b=nul
-set coolshit=1
+set bln=1 &set list_w=nul &set list_b=nul
+set coolshit=1 &set detail=1
 for /l %%a in (0, 1, 2) do (
 for /l %%b in (0, 1, 2) do (
 set /a total[%%a][%%b]=0 &set /a est[%%a][%%b]=0 &set /a listen[%%a][%%b]=0
@@ -311,6 +315,15 @@ for /F "tokens=1,2 delims=#" %%a in ('"prompt #$H#$E# & echo on & for %%b in (1)
   exit /B 0
 )
 exit /B 0
+
+:port_list
+set "port_table[0][0]=80,443"
+set "port_table[0][1]=http,https"
+for /l %%0 in (0, 1, 0) do for /l %%1 in (0, 1, 1) do (
+set /a cnt=-1 &for %%a in (!port_table[%%0][%%1]!) do set /a cnt+=1 &set "port_list[!cnt!][%%1]=%%a")
+set /a port_cnt=-1 &for %%a in (!port_table[0][0]!) do set /a port_cnt+=1
+REM port_list[0][0]=80 port_list[0][1]=http ...
+exit /b
 
 :test
 pause
