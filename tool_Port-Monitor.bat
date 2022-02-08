@@ -61,27 +61,28 @@ tasklist /fi "pid eq %pid%"
 echo.
 netstat -ano | findstr /i "PID"
 set /a count=0 &set /a slen=2 &for /l %%0 in (0, 1, !slen!) do set /a sortc[%%0]=0
-for /l %%0 in (0, 1, 2) do set /a total[%%0][0]=0 &set /a est[%%0][0]=0
+for /l %%0 in (0, 1, 2) do set /a total[%%0][0]=0 &set /a est[%%0][0]=0 &set /a listen[%%0][0]=0
 for /f "tokens=*" %%a in ('netstat -ano ^| findstr /e %pid%') do (
 for /f "tokens=5" %%b in ("%%a") do if %%b==%pid% set/a count+=1 &set output[!count!]=%%a)
 
 if !count!==0 (echo. &echo ^(Empty^)) else (
 for /l %%0 in (1, 1, !count!) do for /f "tokens=1-5" %%a in ("!output[%%0]!") do (
-for /f "delims=:" %%k in ("%%c") do if %%d==LISTENING ^
-if not %%k==127.0.0.1 if not %%k==0.0.0.0 if not %%c==[::]:0 (
-if not %list_w%==%pid% set killstr=!output[%%0]! &goto kill)
+for /f "delims=:" %%k in ("%%c") do if %%d==LISTENING (
+set /a listen[0][0]+=1 &set /a listen[1][0]+=1
+if not %%k==%localhost% if not %%k==%nullhost% if not %%c==[::]:0 (
+if not %list_w%==%pid% set killstr=!output[%%0]! &goto kill) else (set /a listen[2][0]+=1))
 
 if %detail%==1 (set "bool="
 for /f "tokens=2,4 delims=:" %%p in ("%%b:%%c") do for /l %%1 in (0, 1, %port_cnt%) do (
 if %%p==!port_list[%%1][0]! (set "bool=1") else (if %%q==!port_list[%%1][0]! set "bool=1")
 if defined bool set "var1=%%0" &set "var2=%%1" & ^
 set "varp=!port_list[%%1][0]!" &set "port_info=!port_list[%%1][1]!" & call :port_replace)
-set "output[%%0]=!output[%%0]:127.0.0.1=localhost!")
+set "output[%%0]=!output[%%0]:%localhost%=localhost!")
 
 for /f "delims=:" %%l in ("%%b") do (
-if %%l==127.0.0.1 (set /a total[1][0]+=1) else (set /a total[2][0]+=1)
+if %%l==%localhost% (set /a total[1][0]+=1) else (set /a total[2][0]+=1)
 if not %%d==ESTABLISHED (set /a sortc[0]+=1 &set sort[0][!sortc[0]!]=!output[%%0]!) else (set /a est[0][0]+=1)
-if %%d==ESTABLISHED if %%l==127.0.0.1 (set /a sortc[1]+=1 &set sort[1][!sortc[1]!]=!output[%%0]!
+if %%d==ESTABLISHED if %%l==%localhost% (set /a sortc[1]+=1 &set sort[1][!sortc[1]!]=!output[%%0]!
 ) else if not %%l==nul set /a sortc[2]+=1 &set sort[2][!sortc[2]!]=!output[%%0]!))
 for /l %%0 in (1, 1, !count!) do set "output[!count!]="
 
@@ -90,33 +91,34 @@ for /l %%0 in (0, 1, !slen!) do (if not !sortc[%%0]!==0 echo.
 for /l %%1 in (1, 1, !sortc[%%0]!) do (
 if %%0==0 echo   %ESC%[103;30m!sort[%%0][%%1]!%ESC%[0m
 if %%0==1 echo   %ESC%[47;30m!sort[%%0][%%1]!%ESC%[0m
-if %%0==2 echo   %ESC%[44;1m!sort[%%0][%%1]!%ESC%[0m))
-) else (
-for /l %%0 in (0, 1, !slen!) do (if not !sortc[%%0]!==0 (echo. &if %%0==1 (echo ESTABLISHED: &echo.
-) else if %%0==2 if !sortc[1]!==0 echo ESTABLISHED: &echo.) &for /l %%1 in (1, 1, !sortc[%%0]!) do echo   !sort[%%0][%%1]!)
-))
+if %%0==2 echo   %ESC%[44;1m!sort[%%0][%%1]!%ESC%[0m))) ^
+else (for /l %%0 in (0, 1, !slen!) do if not !sortc[%%0]!==0 (echo. &if %%0==1 (echo ESTABLISHED: &echo.) ^
+else if %%0==2 if !sortc[1]!==0 (echo ESTABLISHED: &echo.)) &for /l %%1 in (1, 1, !sortc[%%0]!) do echo   !sort[%%0][%%1]!))
 
 set /a total[0][0]=!count! &for /l %%0 in (1, 1, !slen!) do set est[%%0][0]=!sortc[%%0]!
 if %bln%==1 (for /l %%a in (0, 1, 2) do (set /a est[%%a][2]=est[%%a][0] &set /a total[%%a][2]=total[%%a][0]) &set bln=0)
 for /l %%0 in (0, 1, 2) do (
-if !est[%%0][0]! gtr !est[%%0][1]! (set /a est[%%0][1]=est[%%0][0])
-if !est[%%0][0]! lss !est[%%0][2]! (set /a est[%%0][2]=est[%%0][0])
-if !total[%%0][0]! gtr !total[%%0][1]! (set /a total[%%0][1]=total[%%0][0])
-if !total[%%0][0]! lss !total[%%0][2]! (set /a total[%%0][2]=total[%%0][0]))
+if !est[%%0][0]! gtr !est[%%0][1]! (set "est[%%0][1]=!est[%%0][0]!") ^
+else if !est[%%0][0]! lss !est[%%0][2]! (set "est[%%0][2]=!est[%%0][0]!")
+if !total[%%0][0]! gtr !total[%%0][1]! (set "total[%%0][1]=!total[%%0][0]!") ^
+else if !total[%%0][0]! lss !total[%%0][2]! (set "total[%%0][2]=!total[%%0][0]!")
+if !listen[%%0][0]! gtr !listen[%%0][1]! (set "listen[%%0][1]=!listen[%%0][0]!") ^
+else if !listen[%%0][0]! lss !listen[%%0][2]! (set "listen[%%0][2]=!listen[%%0][0]!"))
 
-set title=State total localhost^(max^|min^) foreignhost^(max^|min^)
-set interval=8 &set Title_Instant_Print=false
+set "title=State Total Local_Host(max|min) Foreign_Host(max|min)"
+set /a interval=8 &set Title_Instant_Print=false
 
-set /a data_len=2
-set data[1]=ESTABLISHED !est[0][0]! %est[1][0]%_^(%est[1][1]%^|%est[1][2]%^) %est[2][0]%_^(%est[2][1]%^|%est[2][2]%^)
-set data[2]=Total %total[0][0]% %total[1][0]%_^(%total[1][1]%^|%total[1][2]%^) %total[2][0]%_^(%total[2][1]%^|%total[2][2]%^)
+set /a data_len=3
+set "data[1]=LISTENING !listen[0][0]! !listen[1][0]!_(!listen[1][1]!|!listen[1][2]!) !listen[2][0]!_(!listen[2][1]!|!listen[2][2]!)"
+set "data[2]=ESTABLISHED !est[0][0]! !est[1][0]!_(!est[1][1]!|!est[1][2]!) !est[2][0]!_(!est[2][1]!|!est[2][2]!)"
+set "data[3]=Total %total[0][0]% %total[1][0]%_(%total[1][1]%|%total[1][2]%) %total[2][0]%_(%total[2][1]%|%total[2][2]%)"
 
 for /l %%0 in (1, 1, !interval!) do set interval_= !interval_!
-for %%a in (!title!) do set title_print=!title_print!%%a!interval_!
+for %%a in (!title!) do set "title_print=!title_print!%%a!interval_!" &set "interval_=!interval_:~0,6!"
 set "interval_="
 
 for %%a in (!title!) do (set str=%%a &set /a str_cnt=0
-for /l %%0 in (1, 1, 30) do if defined str (set str=!str:~1!
+for /l %%0 in (1, 1, 35) do if defined str (set str=!str:~1!
 if defined str set /a str_cnt+=1)
 set title_len=!title_len! !str_cnt!)
 set title_len=!title_len:~1!
@@ -127,28 +129,27 @@ if !data_len! geq 50 set Title_Instant_Print=true
 if !Title_Instant_Print!==true echo !title_print!
 
 for /l %%t in (1, 1, !data_len!) do (
-set /a count=0
+set /a count=0 &set /a interval=8
 if defined data[%%t] (
-
 for %%a in (!data[%%t]!) do (
 set str=%%a &set /a str_cnt=0
-for /l %%0 in (1, 1, 20) do if defined str (set str=!str:~1!
+for /l %%0 in (1, 1, 25) do if defined str (set str=!str:~1!
 if defined str set /a str_cnt+=1)
 set /a count+=1
 set /a str_len[!count!]=!str_cnt! &set data_[!count!]=%%a)
 
 for /l %%0 in (1, 1, !len!) do (
+if %%0 gtr 1 set /a interval=6
 set /a space_[%%0]=title_len_[%%0]-!str_len[%%0]!+!interval!
-for /l %%1 in (1, 1, !space_[%%0]!) do set space[%%0]= !space[%%0]!
+if not %%0==!len! for /l %%1 in (1, 1, !space_[%%0]!) do set space[%%0]= !space[%%0]!
 set table[%%t]=!table[%%t]!!data_[%%0]!!space[%%0]!
 for /l %%1 in (1, 1, !space_[%%0]!) do set "space[%%0]="
 set /a space_[%%0]=0 &set "data_[%%0]=")
 if !Title_Instant_Print!==true echo !table[%%t]!
-) else (set data[%%T]=NULL)
-)
+) else (set data[%%T]=NULL))
 
 if not !Title_Instant_Print!==true (
-echo. &echo   !title_print! &echo.
+echo. &echo   !title_print:_= ! &echo.
 for /l %%0 in (1, 1, %data_len%) do echo   !table[%%0]:_= ! &set table[%%0]=)
 set "title_print="
 
@@ -302,10 +303,9 @@ set /a total[3][3] &set /a est[3][3] &set /a listen[3][3]
 set /a estc[3][3]
 set bln=1 &set list_w=nul &set list_b=nul
 set coolshit=1 &set detail=1
-for /l %%a in (0, 1, 2) do (
-for /l %%b in (0, 1, 2) do (
+for /l %%a in (0, 1, 2) do for /l %%b in (0, 1, 2) do (
 set /a total[%%a][%%b]=0 &set /a est[%%a][%%b]=0 &set /a listen[%%a][%%b]=0
-set /a estc[%%a][%%b]=0))
+set /a estc[%%a][%%b]=0)
 cls &goto main
 
 REM Cool Stuff win10colors.cmd by Michele Locati (github/mlocati). Respect!!!
@@ -317,11 +317,12 @@ for /F "tokens=1,2 delims=#" %%a in ('"prompt #$H#$E# & echo on & for %%b in (1)
 exit /B 0
 
 :port_list
+set "localhost=127.0.0.1" &set "nullhost=0.0.0.0"
 set "port_table[0][0]=80,443"
 set "port_table[0][1]=http,https"
 for /l %%0 in (0, 1, 0) do for /l %%1 in (0, 1, 1) do (
 set /a cnt=-1 &for %%a in (!port_table[%%0][%%1]!) do set /a cnt+=1 &set "port_list[!cnt!][%%1]=%%a")
-set /a port_cnt=-1 &for %%a in (!port_table[0][0]!) do set /a port_cnt+=1
+set /a port_cnt=-1 &set /a port_cnt=-1 &for %%a in (!port_table[0][0]!) do set /a port_cnt+=1
 REM port_list[0][0]=80 port_list[0][1]=http ...
 exit /b
 
