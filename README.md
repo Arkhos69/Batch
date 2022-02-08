@@ -7,10 +7,13 @@ This tool can do:
 - Show Port info (:443=https, localhost)
 - Count Ports and Show Dynamic stat table
 - Check "LISTENING" Port is connect to Foreign Host
+- Can be more clearly to check port.
 
 ![port_monitor5](https://user-images.githubusercontent.com/98234168/153008347-67431584-2d06-403c-aa90-8d4f14934075.png)
 
 ![port_monitor6](https://user-images.githubusercontent.com/98234168/153035849-538afe2d-cee9-4c9b-97a6-6667887f2250.png)
+
+Reload port contents per 3 seconds.
 
 Press N can open a new cmd window to Monitor another process.
 
