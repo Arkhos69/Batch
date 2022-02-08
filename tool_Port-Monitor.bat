@@ -310,7 +310,7 @@ set enter=nul &set pid=0 &set imgname=0 &set mode=img
 set /a total[3][3] &set /a est[3][3] &set /a listen[3][3]
 set /a estc[3][3]
 set bln=1 &set list_w=nul &set list_b=nul
-set coolshit=0 &set detail=1
+set coolshit=1 &set detail=1
 for /l %%a in (0, 1, 2) do for /l %%b in (0, 1, 2) do (
 set /a total[%%a][%%b]=0 &set /a est[%%a][%%b]=0 &set /a listen[%%a][%%b]=0
 set /a estc[%%a][%%b]=0)
