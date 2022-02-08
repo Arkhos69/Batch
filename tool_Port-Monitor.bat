@@ -121,7 +121,6 @@ set /a len=0 &for %%a in (!title_len!) do set /a len+=1 &set /a title_len_[!len!
 set "title_len="
 if !data_len! geq 50 set Title_Instant_Print=true
 if !Title_Instant_Print!==true echo !title_print!
-
 for /l %%t in (1, 1, !data_len!) do (
 set /a count=0 &set /a interval=8
 if defined data[%%t] (
