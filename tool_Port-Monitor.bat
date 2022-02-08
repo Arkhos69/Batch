@@ -44,7 +44,7 @@ for /f "tokens=2" %%a in ('tasklist /fi "imagename eq %enter%.exe" ^| findstr /b
 ) else if %mode%==pid (
 tasklist /fi "pid eq %enter%" | findstr %enter% 2>&1>nul
 if !errorlevel!==0 set pid=%enter% &goto start))
-set enter=nul &goto main
+set "enter=" &goto main
 
 :start
 cls
@@ -53,14 +53,14 @@ echo loading......
 for /f "tokens=1" %%a in ('tasklist /fi "pid eq %pid%" ^| findstr %pid%') do set imgname=%%a
 title=Port Monitor - %imgname%
 tasklist /fi "pid eq %pid%" | findstr "%pid%" 2>&1>nul || goto died
-set enter=nul &goto loop
+set "enter=" &goto loop
 
 :loop
 cls
 tasklist /fi "pid eq %pid%"
 echo.
 netstat -ano | findstr /i "PID"
-set /a count=0 &set /a slen=2 &for /l %%0 in (0, 1, !slen!) do set /a sortc[%%0]=0
+set /a count=0 &set /a slen=3 &for /l %%0 in (0, 1, !slen!) do set /a sortc[%%0]=0
 for /l %%0 in (0, 1, 2) do set /a total[%%0][0]=0 &set /a est[%%0][0]=0 &set /a listen[%%0][0]=0
 for /f "tokens=*" %%a in ('netstat -ano ^| findstr /e %pid%') do (
 for /f "tokens=5" %%b in ("%%a") do if %%b==%pid% set/a count+=1 &set output[!count!]=%%a)
@@ -68,9 +68,11 @@ for /f "tokens=5" %%b in ("%%a") do if %%b==%pid% set/a count+=1 &set output[!co
 if !count!==0 (echo. &echo ^(Empty^)) else (
 for /l %%0 in (1, 1, !count!) do for /f "tokens=1-5" %%a in ("!output[%%0]!") do (
 for /f "delims=:" %%k in ("%%c") do if %%d==LISTENING (
+set /a sortc[0]+=1 &set "sort[0][!sortc[0]!]=!output[%%0]!"
 set /a listen[0][0]+=1 &set /a listen[1][0]+=1
 if not %%k==%localhost% if not %%k==%nullhost% if not %%c==[::]:0 (
-if not %list_w%==%pid% set killstr=!output[%%0]! &goto kill) else (set /a listen[2][0]+=1))
+if not %list_w%==%pid% (set "killstr=!output[%%0]!" &goto kill) else (set /a listen[2][0]+=1))) ^
+else if not %%d==ESTABLISHED (set /a sortc[1]+=1 &set "sort[1][!sortc[1]!]=!output[%%0]!") else (set /a est[0][0]+=1)
 
 if %detail%==1 (set "bool="
 for /f "tokens=2,4 delims=:" %%p in ("%%b:%%c") do for /l %%1 in (0, 1, %port_cnt%) do (
@@ -81,21 +83,22 @@ set "output[%%0]=!output[%%0]:%localhost%=localhost!")
 
 for /f "delims=:" %%l in ("%%b") do (
 if %%l==%localhost% (set /a total[1][0]+=1) else (set /a total[2][0]+=1)
-if not %%d==ESTABLISHED (set /a sortc[0]+=1 &set sort[0][!sortc[0]!]=!output[%%0]!) else (set /a est[0][0]+=1)
-if %%d==ESTABLISHED if %%l==%localhost% (set /a sortc[1]+=1 &set sort[1][!sortc[1]!]=!output[%%0]!
-) else if not %%l==nul set /a sortc[2]+=1 &set sort[2][!sortc[2]!]=!output[%%0]!))
+if %%d==ESTABLISHED if %%l==%localhost% (
+set /a sortc[2]+=1 &set "sort[2][!sortc[2]!]=!output[%%0]!" &set /a est[1][0]+=1) ^
+else if not %%l==nul set /a sortc[3]+=1 &set "sort[3][!sortc[3]!]=!output[%%0]!" &set /a est[2][0]+=1))
 for /l %%0 in (1, 1, !count!) do set "output[!count!]="
 
 if %coolshit%==1 (
 for /l %%0 in (0, 1, !slen!) do (if not !sortc[%%0]!==0 echo.
 for /l %%1 in (1, 1, !sortc[%%0]!) do (
 if %%0==0 echo   %ESC%[103;30m!sort[%%0][%%1]!%ESC%[0m
-if %%0==1 echo   %ESC%[47;30m!sort[%%0][%%1]!%ESC%[0m
-if %%0==2 echo   %ESC%[44;1m!sort[%%0][%%1]!%ESC%[0m))) ^
-else (for /l %%0 in (0, 1, !slen!) do if not !sortc[%%0]!==0 (echo. &if %%0==1 (echo ESTABLISHED: &echo.) ^
+if %%0==1 echo   %ESC%[46;30m!sort[%%0][%%1]!%ESC%[0m
+if %%0==2 echo   %ESC%[47;30m!sort[%%0][%%1]!%ESC%[0m
+if %%0==3 echo   %ESC%[44;1m!sort[%%0][%%1]!%ESC%[0m))) ^
+else (for /l %%0 in (0, 1, !slen!) do if not !sortc[%%0]!==0 (echo. &if %%0==2 (echo ESTABLISHED: &echo.) ^
 else if %%0==2 if !sortc[1]!==0 (echo ESTABLISHED: &echo.)) &for /l %%1 in (1, 1, !sortc[%%0]!) do echo   !sort[%%0][%%1]!))
 
-set /a total[0][0]=!count! &for /l %%0 in (1, 1, !slen!) do set est[%%0][0]=!sortc[%%0]!
+set /a total[0][0]=!count!
 if %bln%==1 (for /l %%a in (0, 1, 2) do (set /a est[%%a][2]=est[%%a][0] &set /a total[%%a][2]=total[%%a][0]) &set bln=0)
 for /l %%0 in (0, 1, 2) do (
 if !est[%%0][0]! gtr !est[%%0][1]! (set "est[%%0][1]=!est[%%0][0]!") ^
@@ -150,15 +153,16 @@ if !Title_Instant_Print!==true echo !table[%%t]!
 
 if not !Title_Instant_Print!==true (
 echo. &echo   !title_print:_= ! &echo.
-for /l %%0 in (1, 1, %data_len%) do echo   !table[%%0]:_= ! &set table[%%0]=)
+for /l %%0 in (1, 1, %data_len%) do set "table[%%0]=!table[%%0]:|=,!" &echo   !table[%%0]:_= ! &set "table[%%0]=")
 set "title_print="
 
 title=Port Monitor - %imgname%(%pid%) Total:%total[0][0]% [Est:%est[0][0]% (LH:%est[1][0]% FH:%est[2][0]%)]
 REM timeout /T 3
 echo.
-choice /n /c pmc /t 3 /d c /m "P - Pause | M - Back to menu:"
+choice /n /c pmnc /t 3 /d c /m "P - Pause | M - Back to menu:"
 if %errorlevel%==1 pause
 if %errorlevel%==2 goto init
+if %errorlevel%==3 start %~f0
 tasklist /fi "pid eq %pid%" | findstr "%pid%" 2>&1>nul || goto died
 goto loop
 
