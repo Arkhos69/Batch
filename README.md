@@ -14,6 +14,6 @@ This batch file can do:
 
 Press N can open a new cmd window to Monitor another process.
 
-Thanks: [mlocati](https://gist.github.com/mlocati) giveing us [win10colors.cmd](https://gist.github.com/mlocati/fdabcaeb8071d5c75a2d51712db24011) a very useful and amazing way to turning cmd being colorful.
+Thanks: [mlocati](https://gist.github.com/mlocati) giving us [win10colors.cmd](https://gist.github.com/mlocati/fdabcaeb8071d5c75a2d51712db24011) a very useful and amazing way to turn cmd being colorful.
 
 ![parasite-respect](https://user-images.githubusercontent.com/98234168/153065065-9ac7d784-3db8-4379-8d5d-33e52ba45b47.gif)
