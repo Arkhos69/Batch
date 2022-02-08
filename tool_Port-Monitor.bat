@@ -154,7 +154,11 @@ for /l %%0 in (1, 1, %data_len%) do echo   !table[%%0]:_= ! &set table[%%0]=)
 set "title_print="
 
 title=Port Monitor - %imgname%(%pid%) Total:%total[0][0]% [Est:%est[0][0]% (LH:%est[1][0]% FH:%est[2][0]%)]
-timeout /T 3
+REM timeout /T 3
+echo.
+choice /n /c pmc /t 3 /d c /m "P - Pause | M - Back to menu:"
+if %errorlevel%==1 pause
+if %errorlevel%==2 goto init
 tasklist /fi "pid eq %pid%" | findstr "%pid%" 2>&1>nul || goto died
 goto loop
 
