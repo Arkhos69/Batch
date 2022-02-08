@@ -153,7 +153,7 @@ if !Title_Instant_Print!==true echo !table[%%t]!
 
 if not !Title_Instant_Print!==true (
 echo. &echo   !title_print:_= ! &echo.
-for /l %%0 in (1, 1, %data_len%) do set "table[%%0]=!table[%%0]:|=,!" &echo   !table[%%0]:_= ! &set "table[%%0]=")
+for /l %%0 in (1, 1, %data_len%) do echo   !table[%%0]:_= ! &set "table[%%0]=")
 set "title_print="
 
 title=Port Monitor - %imgname%(%pid%) Total:%total[0][0]% [Est:%est[0][0]% (LH:%est[1][0]% FH:%est[2][0]%)]
@@ -310,7 +310,7 @@ set enter=nul &set pid=0 &set imgname=0 &set mode=img
 set /a total[3][3] &set /a est[3][3] &set /a listen[3][3]
 set /a estc[3][3]
 set bln=1 &set list_w=nul &set list_b=nul
-set coolshit=1 &set detail=1
+set coolshit=0 &set detail=1
 for /l %%a in (0, 1, 2) do for /l %%b in (0, 1, 2) do (
 set /a total[%%a][%%b]=0 &set /a est[%%a][%%b]=0 &set /a listen[%%a][%%b]=0
 set /a estc[%%a][%%b]=0)
