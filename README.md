@@ -13,7 +13,7 @@ This tool can do:
 
 ![port_monitor6](https://user-images.githubusercontent.com/98234168/153035849-538afe2d-cee9-4c9b-97a6-6667887f2250.png)
 
-Reload port contents per 3 seconds.
+Reload port contents per 3 seconds, or Press C.
 
 Press N can open a new cmd window to Monitor another process.
 
