@@ -1,7 +1,7 @@
 # Batch
 [Port-Monitor.bat](https://github.com/Arkhos69/Batch/blob/main/tool_Port-Monitor.bat)
 
-This batch file can do:
+This tool can do:
 
 - Sort State type
 - Show Port info (:443=https, localhost)
