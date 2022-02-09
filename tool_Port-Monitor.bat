@@ -47,8 +47,7 @@ if !errorlevel!==0 set pid=%enter% &goto start))
 set "enter=" &goto main
 
 :start
-cls
-if %coolshit%==1 color 07
+cls &color 07
 echo loading......
 for /f "tokens=1" %%a in ('tasklist /fi "pid eq %pid%" ^| findstr %pid%') do set imgname=%%a
 title=Port Monitor - %imgname%
