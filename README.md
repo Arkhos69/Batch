@@ -11,7 +11,7 @@ This tool can do:
 
 ![port_monitor5](https://user-images.githubusercontent.com/98234168/153008347-67431584-2d06-403c-aa90-8d4f14934075.png)
 
-![port_monitor6](https://user-images.githubusercontent.com/98234168/153035849-538afe2d-cee9-4c9b-97a6-6667887f2250.png)
+![port_monitor9](https://user-images.githubusercontent.com/98234168/153104892-17529eb1-7ab1-4f0b-a837-be45e942f2ce.png)
 
 Reload port contents per 3 seconds, or Press C.
 
