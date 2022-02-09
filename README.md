@@ -1,22 +1,27 @@
 # Batch
-[Port-Monitor.bat](https://github.com/Arkhos69/Batch/blob/main/tool_Port-Monitor.bat)
 
-This tool can do:
+### Decimal to Binary
 
-- Sort State type
-- Show Port info (:443=https, localhost)
-- Count Ports and Show Dynamic stat table
-- Check "LISTENING" Port is connect to Foreign Host
-- Can be more clearly to check port.
+[decimal_to_binary.bat](https://github.com/Arkhos69/Batch/blob/main/decimal_to_binary.bat)
 
-![port_monitor5](https://user-images.githubusercontent.com/98234168/153008347-67431584-2d06-403c-aa90-8d4f14934075.png)
+![dectobin](https://user-images.githubusercontent.com/98234168/150714928-009760e0-655f-4f82-88a0-516098caf92e.png)
 
-![port_monitor9](https://user-images.githubusercontent.com/98234168/153104892-17529eb1-7ab1-4f0b-a837-be45e942f2ce.png)
+### Decimal to Hex
 
-Reload port contents per 3 seconds, or Press C.
+[decimal_to_hex.bat](https://github.com/Arkhos69/Batch/blob/main/decimal_to_hex.bat)
 
-Press N can open a new cmd window to Monitor another process.
+![dectohex](https://user-images.githubusercontent.com/98234168/151214390-96811e73-14e3-4dc3-a0b8-7bf7835a2c49.png)
 
-Thanks: [mlocati](https://gist.github.com/mlocati) giving us [win10colors.cmd](https://gist.github.com/mlocati/fdabcaeb8071d5c75a2d51712db24011) a very useful and amazing way to turn cmd being colorful.
+### Read batch label
 
-![parasite-respect](https://user-images.githubusercontent.com/98234168/153065065-9ac7d784-3db8-4379-8d5d-33e52ba45b47.gif)
+[read_batch_label.bat](https://github.com/Arkhos69/Batch/blob/main/read_batch_label.bat)
+
+![read_label](https://user-images.githubusercontent.com/98234168/152821608-6ce30e19-4fe8-4810-9ef2-3411a8e6895f.png)
+
+![read_label2](https://user-images.githubusercontent.com/98234168/152826325-051d7c7b-6752-4bd8-b80c-dc4661023b02.png)
+
+### String to Ascii
+
+[string_to_ascii.bat](https://github.com/Arkhos69/Batch/blob/main/string_to_ascii.bat)
+
+![string_to_ascii](https://user-images.githubusercontent.com/98234168/151112852-317b7a54-9720-4c58-8289-eb88fc0180a0.png)
