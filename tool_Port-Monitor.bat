@@ -64,6 +64,7 @@ set /a count=0 &set /a slen=3 &for /l %%0 in (0, 1, !slen!) do set /a sortc[%%0]
 for /l %%0 in (0, 1, 2) do set /a total[%%0][0]=0 &set /a est[%%0][0]=0 &set /a listen[%%0][0]=0
 for /f "tokens=*" %%a in ('netstat -ano ^| findstr /e %pid%') do (
 for /f "tokens=5" %%b in ("%%a") do if %%b==%pid% set/a count+=1 &set output[!count!]=%%a)
+
 if !count!==0 (echo. &echo ^(Empty^)) else (
 for /l %%0 in (1, 1, !count!) do for /f "tokens=1-5" %%a in ("!output[%%0]!") do (
 for /f "delims=:" %%k in ("%%c") do if %%d==LISTENING (
@@ -84,6 +85,7 @@ if %%d==ESTABLISHED if %%l==%localhost% (
 set /a sortc[2]+=1 &set "sort[2][!sortc[2]!]=!output[%%0]!" &set /a est[1][0]+=1) ^
 else if not %%l==nul set /a sortc[3]+=1 &set "sort[3][!sortc[3]!]=!output[%%0]!" &set /a est[2][0]+=1))
 for /l %%0 in (1, 1, !count!) do set "output[!count!]="
+
 if %coolshit%==1 (
 for /l %%0 in (0, 1, !slen!) do (if not !sortc[%%0]!==0 echo.
 for /l %%1 in (1, 1, !sortc[%%0]!) do (
@@ -93,6 +95,7 @@ if %%0==2 echo   %ESC%[47;30m!sort[%%0][%%1]!%ESC%[0m
 if %%0==3 echo   %ESC%[44;1m!sort[%%0][%%1]!%ESC%[0m))) ^
 else (for /l %%0 in (0, 1, !slen!) do if not !sortc[%%0]!==0 (echo. &if %%0==2 (echo ESTABLISHED: &echo.) ^
 else if %%0==2 if !sortc[1]!==0 (echo ESTABLISHED: &echo.)) &for /l %%1 in (1, 1, !sortc[%%0]!) do echo   !sort[%%0][%%1]!))
+
 set /a total[0][0]=!count!
 if %bln%==1 (for /l %%a in (0, 1, 2) do (set /a est[%%a][2]=est[%%a][0] &set /a total[%%a][2]=total[%%a][0]) &set bln=0)
 for /l %%0 in (0, 1, 2) do (
@@ -121,8 +124,10 @@ set /a len=0 &for %%a in (!title_len!) do set /a len+=1 &set /a title_len_[!len!
 set "title_len="
 if !data_len! geq 50 set Title_Instant_Print=true
 if !Title_Instant_Print!==true echo !title_print!
+
 for /l %%t in (1, 1, !data_len!) do (
 set /a count=0 &set /a interval=8
+
 if defined data[%%t] (
 for %%a in (!data[%%t]!) do (
 set str=%%a &set /a str_cnt=0
@@ -130,6 +135,7 @@ for /l %%0 in (1, 1, 25) do if defined str (set str=!str:~1!
 if defined str set /a str_cnt+=1)
 set /a count+=1
 set /a str_len[!count!]=!str_cnt! &set data_[!count!]=%%a)
+
 for /l %%0 in (1, 1, !len!) do (
 if %%0 gtr 1 set /a interval=6
 set /a space_[%%0]=title_len_[%%0]-!str_len[%%0]!+!interval!
@@ -137,8 +143,10 @@ if not %%0==!len! for /l %%1 in (1, 1, !space_[%%0]!) do set space[%%0]= !space[
 set table[%%t]=!table[%%t]!!data_[%%0]!!space[%%0]!
 for /l %%1 in (1, 1, !space_[%%0]!) do set "space[%%0]="
 set /a space_[%%0]=0 &set "data_[%%0]=")
+
 if !Title_Instant_Print!==true echo !table[%%t]!
 ) else (set data[%%T]=NULL))
+
 if not !Title_Instant_Print!==true (
 echo. &echo   !title_print:_= ! &echo.
 for /l %%0 in (1, 1, %data_len%) do echo   !table[%%0]:_= ! &set "table[%%0]=")
