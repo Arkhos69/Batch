@@ -1,9 +1,9 @@
 @echo off &setlocal EnableDelayedExpansion
 
 echo Keyword=cut
-echo String=123cut456cut789cut
+echo String=123cut456cut789
 echo Return:
-call :str_keyword_split return "123cut456cut789cut" "cut"
+call :str_keyword_split return "123cut456cut789" "cut"
 if %errorlevel%==0 for /l %%0 in (0, 1, %sp_ary_len%) do echo !return[%%0]! &set "return[%%0]="
 
 :main
@@ -19,7 +19,7 @@ set "sp_return=%~1" &set "sp_str=%~2" &set "sp_Keyword=%~3"
 for %%a in (sp_return sp_str sp_Keyword) do if not defined %%a exit /b 1
 set "sp_get=" &set "sp_tmp=" &set /a len_=0 &set /a sp_ary_len=-1
 :str_keyword_split_loop
-for %%i in (20 30 50 100) do for /l %%0 in (0, 1, %%i) do ^
+for %%i in (20 30 50 100 200) do for /l %%0 in (0, 1, %%i) do ^
 if defined sp_str (set "sp_=!sp_str:~0,1!" &set "sp_str=!sp_str:~1!"
 
 if defined sp_start for %%l in (!len_!) do if not "!sp_!"=="!sp_Keyword:~%%l,1!" ^
