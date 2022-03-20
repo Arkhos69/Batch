@@ -31,3 +31,19 @@
 [string_keyword_split.bat](https://github.com/Arkhos69/Batch/blob/main/string_keyword_split.bat)
 
 ![cut](https://user-images.githubusercontent.com/98234168/159183794-8453359d-672e-4c9e-981c-d962b113befe.png)
+
+```
+@echo off
+
+set "delims=cut"
+set "string=123cut456cut789"
+call :loop
+pause
+
+:loop
+set /a cnt+=1 &set "a=" 
+for /f "tokens=%cnt% delims=%delims%" %%a in ("%string%") do set "a=%%a" &echo %%a
+if not defined a exit /b
+goto loop
+```
+:(
