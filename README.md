@@ -25,3 +25,9 @@
 [string_to_ascii.bat](https://github.com/Arkhos69/Batch/blob/main/string_to_ascii.bat)
 
 ![string_to_ascii](https://user-images.githubusercontent.com/98234168/151112852-317b7a54-9720-4c58-8289-eb88fc0180a0.png)
+
+### String Keyword split
+
+[string_keyword_split.bat](https://github.com/Arkhos69/Batch/blob/main/string_keyword_split.bat)
+
+![cut](https://user-images.githubusercontent.com/98234168/159183794-8453359d-672e-4c9e-981c-d962b113befe.png)
