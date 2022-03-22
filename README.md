@@ -17,8 +17,9 @@
 [read_batch_label.bat](https://github.com/Arkhos69/Batch/blob/main/read_batch_label.bat)
 
 ![read_label](https://user-images.githubusercontent.com/98234168/152821608-6ce30e19-4fe8-4810-9ef2-3411a8e6895f.png)
-
 ![read_label2](https://user-images.githubusercontent.com/98234168/152826325-051d7c7b-6752-4bd8-b80c-dc4661023b02.png)
+
+![label](https://user-images.githubusercontent.com/98234168/159529334-91110fd8-47ab-4706-9982-7c62a60d90e4.png)
 
 ### String to Ascii
 
@@ -31,5 +32,6 @@
 [string_keyword_split.bat](https://github.com/Arkhos69/Batch/blob/main/string_keyword_split.bat)
 
 ![cut](https://user-images.githubusercontent.com/98234168/159183794-8453359d-672e-4c9e-981c-d962b113befe.png)
+
 ![cut2](https://user-images.githubusercontent.com/98234168/159367291-9fb46f3b-a751-41b7-8c16-cedc3d3b918b.png)
 ![cut3](https://user-images.githubusercontent.com/98234168/159367350-4cdd1660-f3e6-41e4-b6f0-49a67d188deb.png)
