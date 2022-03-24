@@ -12,11 +12,12 @@ set "pass=1" &start %~f0)
 :main
 choice /n /c %choice_% /m "%choice_%:"
 if not exist switch.sync ^
-for /l %%0 in (1, 1, %len%) do if !errorlevel!==%%0 echo !input[%%0]! >switch.sync
+for /l %%0 in (1, 1, %len%) do if !errorlevel!==%%0 ^
+echo !input[%%0]! >data.sync &echo open >switch.sync
 goto main
 
 :loop
 if exist switch.sync (
-for /f "tokens=*" %%a in ('type switch.sync') do echo %%a
-del switch.sync)
+for /f "tokens=*" %%a in ('type data.sync') do echo %%a
+del switch.sync &del data.sync)
 goto loop
